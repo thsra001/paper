@@ -14,13 +14,14 @@ const camera = new THREE.PerspectiveCamera(
   1,
   10000
 );
+camera.position.y = 1.6;
 // add random functions
 function randInt(min, max) {
   return Math.floor(Math.random() * (max - min + 1) ) + min;
 }
 const imgLoader = new THREE.TextureLoader()
 // The renderer: something that draws 3D objects onto the canvas
-const renderer = new THREE.WebGLRenderer({ antialias: true });
+const renderer = new THREE.WebGLRenderer({ canvas: document.querySelector("#c"), antialias: true });
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.setClearColor(0xaaaaaa, 1);
 // Append the renderer canvas into <body>
@@ -33,7 +34,6 @@ const instructions = renderer.domElement.addEventListener( 'click', function () 
 controls.lock();
 } );
 let keys = [];//Define array
-
 renderer.domElement.addEventListener('keydown',keydown);
 renderer.domElement.addEventListener('keyup',keyup);
 //Attach listeners to functions
@@ -63,6 +63,21 @@ const cube = {
   // The material: the appearance (color, texture) of the object
   material: new THREE.MeshPhysicalMaterial( {color: 0xffffff, map: texture, normalMap:texture2, roughnessMap:texture3} )
 };
+cube.mesh = new THREE.Mesh(cube.geometry, cube.material);
+
+scene.add(cube.mesh);
+cube.mesh.position.y = -1;
+// flying cube
+const cube2 = {
+  // The geometry: the shape & size of the object
+  geometry: new THREE.BoxGeometry(1, 1, 1),
+  // The material: the appearance (color, texture) of the object
+  material: new THREE.MeshPhysicalMaterial( {color: 0x33ff33, normalMap:texture2, roughnessMap:texture3} )
+};
+cube2.mesh = new THREE.Mesh(cube2.geometry, cube2.material);
+
+scene.add(cube2.mesh);
+cube2.mesh.position.set(0,1.2,-5)
 //add ambientLight
 const color = 0xFFFFFF;
 const intensity = 0.5;
@@ -73,31 +88,37 @@ scene.add(light);
 const light2 = new THREE.PointLight(color, intensity);
 light2.position.set(0, 10, 0);
 scene.add(light2);
-cube.mesh = new THREE.Mesh(cube.geometry, cube.material);
-
-// Add the cube into the scene
-scene.add(cube.mesh);
-
+console.log(renderer.domElement)
 // Make the camera further from the cube so we can see it better
-console.log(scene)
+
+
+let speed=0.15
+// RENDER LOOP
 function render() {
+  console.log(keys)
   // move player 
-if(keys['w']){
-controls.moveForward(.1);
+if(keys['Shift']){
+  speed=0.25
+}
+else{
+  speed=0.1
+}
+  
+  if(keys['w']){
+controls.moveForward(speed);
 }
 if(keys['s']){
-controls.moveForward(-.1);
+controls.moveForward(0-speed);
 }
 if(keys['a']){
-controls.moveRight(-.1);
+controls.moveRight(0-speed);
 }
 if(keys['d']){
-controls.moveRight(.1);
-  console.log("d");
+controls.moveRight(speed);
 }
-if(keys['c']){
-  controls.lock();
-}
+
+cube2.mesh.rotateX(0.0125)
+cube2.mesh.rotateY(0.025)
   // Render the scene and the camera
   renderer.render(scene, camera);
 
