@@ -114,13 +114,15 @@ const cube = {
 cube.mesh = new THREE.Mesh(cube.geometry, cube.material);
 
 scene.add(cube.mesh);
-cube.mesh.position.y = -1;
+cube.mesh.position.y = -0.5;
 // flying cube
+const texture4 = imgLoader.load( 'tex/blocks/block1.jpg' );
 const cube2 = {
   // The geometry: the shape & size of the object
   geometry: new THREE.BoxGeometry(1, 1, 1),
   // The material: the appearance (color, texture) of the object
-  material: new THREE.MeshPhysicalMaterial( {color: 0x33ff33, normalMap:texture2, roughnessMap:texture3} )
+  material: new THREE.MeshStandardMaterial( {
+color: 0xffffff,map: texture4,} )
 };
 cube2.mesh = new THREE.Mesh(cube2.geometry, cube2.material);
 
@@ -157,7 +159,7 @@ if(rt){
 controls.moveRight(speed);
 }
 if(sprint){ 
-  speed=0.25
+  speed=0.2
 } else{
   speed=0.1
 }
