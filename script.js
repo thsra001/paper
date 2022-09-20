@@ -30,18 +30,66 @@ document.body.appendChild(renderer.domElement);
 const controls = new PointerLockControls(camera, renderer.domElement);
 scene.add(controls.getObject())
 // add eventListners
+var ft, lf, bk, rt, sprint = false
 const instructions = renderer.domElement.addEventListener( 'click', function () {
 controls.lock();
 } );
-let keys = [];//Define array
 renderer.domElement.addEventListener('keydown',keydown);
 renderer.domElement.addEventListener('keyup',keyup);
 //Attach listeners to functions
 function keydown(e){
-keys[e.key] = true;
+  console.log(e.code)
+	switch ( e.code ) {
+
+  case 'ArrowUp':
+  case 'KeyW':
+			ft = true;
+			break;
+
+  case 'ArrowLeft':
+	case 'KeyA':
+			lf = true;
+			break;
+
+  case 'ArrowDown':
+	case 'KeyS':
+			bk = true;
+			break;
+
+  case 'ArrowRight':
+	case 'KeyD':
+			rt = true;
+			break;
+
+  case 'ShiftRight':
+	case 'ShiftLeft':
+		  sprint = !sprint
+			break;
+  }
 }
 function keyup(e){
-keys[e.key] = false;
+	switch ( e.code ) {
+
+  case 'ArrowUp':
+  case 'KeyW':
+			ft = false;
+			break;
+
+  case 'ArrowLeft':
+	case 'KeyA':
+			lf = false;
+			break;
+
+  case 'ArrowDown':
+	case 'KeyS':
+			bk = false;
+			break;
+
+  case 'ArrowRight':
+	case 'KeyD':
+			rt = false;
+			break;
+  }
 }
 // add textures for floor
 const texture = imgLoader.load( 'tex/floor/color.jpg' );
@@ -95,26 +143,23 @@ console.log(renderer.domElement)
 let speed=0.15
 // RENDER LOOP
 function render() {
-  console.log(keys)
   // move player 
-if(keys['Shift']){
-  speed=0.25
-}
-else{
-  speed=0.1
-}
-  
-  if(keys['w']){
+  if(ft){
 controls.moveForward(speed);
 }
-if(keys['s']){
+if(bk){
 controls.moveForward(0-speed);
 }
-if(keys['a']){
+if(lf){
 controls.moveRight(0-speed);
 }
-if(keys['d']){
+if(rt){
 controls.moveRight(speed);
+}
+if(sprint){ 
+  speed=0.25
+} else{
+  speed=0.1
 }
 
 cube2.mesh.rotateX(0.0125)
