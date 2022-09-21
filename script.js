@@ -5,7 +5,10 @@ import CannonDebugger from 'cannon-es-debugger'
 import {GLTFLoader} from 'three/examples/jsm/loaders/GLTFLoader';
 import {PointerLockControls} from 'three/examples/jsm/controls/PointerLockControls';
 
-const scene = new THREE.Scene();
+const scene = new THREE.Scene(); //threeJS
+const world = new CANNON.World({ //cannonJS
+  gravity: new CANNON.Vec3(0, -9.82, 0), // m/s²
+})
 
 // The camera
 const camera = new THREE.PerspectiveCamera(
@@ -21,6 +24,13 @@ function randInt(min, max) {
   return Math.floor(Math.random() * (max - min + 1) ) + min;
 }
 const imgLoader = new THREE.TextureLoader()
+function loadImg(url,x,y) {
+  let texture = imgLoader.load(url);
+texture.wrapS = THREE.RepeatWrapping;
+texture.wrapT = THREE.RepeatWrapping;
+texture.repeat.set(x,y);
+return texture
+}
 // The renderer: something that draws 3D objects onto the canvas
 const renderer = new THREE.WebGLRenderer({ canvas: document.querySelector("#c"), antialias: true });
 renderer.setSize(window.innerWidth, window.innerHeight);
@@ -93,18 +103,9 @@ function keyup(e){
   }
 }
 // add textures for floor
-const texture = imgLoader.load( 'tex/floor/color.jpg' );
-texture.wrapS = THREE.RepeatWrapping;
-texture.wrapT = THREE.RepeatWrapping;
-texture.repeat.set(8,8);
-const texture2 = imgLoader.load( 'tex/floor/normal.jpg' );
-texture2.wrapS = THREE.RepeatWrapping;
-texture2.wrapT = THREE.RepeatWrapping;
-texture.repeat.set(8,8);
-const texture3 = imgLoader.load( 'tex/floor/color.jpg' );
-texture3.wrapS = THREE.RepeatWrapping;
-texture3.wrapT = THREE.RepeatWrapping;
-texture.repeat.set(8,8);
+let texture = loadImg('tex/floor/color.jpg',8,8);
+let texture2 =  loadImg('tex/floor/normal.jpg',8,8);
+let texture3 = loadImg('tex/floor/color.jpg',8,8);
 // the floor
 const cube = {
   // The geometry: the shape & size of the object
@@ -117,7 +118,7 @@ cube.mesh = new THREE.Mesh(cube.geometry, cube.material);
 scene.add(cube.mesh);
 cube.mesh.position.y = -0.5;
 // flying cube
-const texture4 = imgLoader.load( 'tex/blocks/block1.jpg' );
+const texture4 = loadImg('tex/blocks/block1.jpg',1,1);
 const cube2 = {
   // The geometry: the shape & size of the object
   geometry: new THREE.BoxGeometry(1, 1, 1),
