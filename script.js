@@ -170,13 +170,14 @@ console.log(renderer.domElement)
 
 let speed=0.15
 // RENDER LOOP -----------------------------
-function render() {
+function render() { 
   // do physics first
-  world.fixedStep()
   cannonDebugger.update()
+  world.fixedStep()
+  
   for (let x = 0; x < physicObj.length; x++) {
 if  (physicObj[x].isPhysic) {physicObj[x].mesh.position.copy(physicObj[x].physic.position)
-  physicObj[x].mesh.quaternion.copy(physicObj[x].physic.quaternion) 
+ physicObj[x].mesh.quaternion.copy(physicObj[x].physic.quaternion) 
 } else { physicObj[x].physic.position.copy(physicObj[x].mesh.position)
   physicObj[x].physic.quaternion.copy(physicObj[x].mesh.quaternion) 
 }
@@ -196,12 +197,10 @@ controls.moveRight(speed);
 }
 if(sprint){ 
   speed=0.2
-} else{
+} else{ 
   speed=0.1
 }
 
-cube2.mesh.rotateX(0.0125)
-cube2.mesh.rotateY(0.025)
   // Render the scene and the camera
   renderer.render(scene, camera);
 
