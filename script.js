@@ -18,7 +18,7 @@ const cannonDebugger = new CannonDebugger(scene, world, {
 const camera = new THREE.PerspectiveCamera(
   60,
   window.innerWidth / window.innerHeight,
-  1,
+  0.1,
   10000
 );
 camera.position.y = 1.6;
