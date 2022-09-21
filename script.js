@@ -173,7 +173,7 @@ console.log(renderer.domElement)
 // mr grabby
 const raycaster = new THREE.Raycaster();
 let lookingAt=[]
-function reset() { console.log(lookingAt)
+function reset() { 
     // restore the colors
     lookingAt.forEach((object) => { 
       if (object.material  ) {
@@ -182,7 +182,8 @@ function reset() { console.log(lookingAt)
       }
     });
 }   
-function stare(params) {
+function stare() { 
+  reset()
   raycaster.setFromCamera( new THREE.Vector2(), camera );  
 	const intersects = raycaster.intersectObjects( pickable.children );
 	if (intersects.length) { console.log(intersects)
@@ -192,7 +193,7 @@ function stare(params) {
     }
 	}
 }
-
+window.addEventListener( 'pointermove', stare );
 let speed=0.15
 // RENDER LOOP -----------------------------
 function render() { 
@@ -207,8 +208,6 @@ if  (physicObj[x].isPhysic) {physicObj[x].mesh.position.copy(physicObj[x].physic
   physicObj[x].physic.quaternion.copy(physicObj[x].mesh.quaternion) 
 }
 } 
-  reset()
-  stare()
   // move player 
   if(ft){
 controls.moveForward(speed);
