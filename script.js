@@ -15,6 +15,7 @@ const camera = new THREE.PerspectiveCamera(
   10000
 );
 camera.position.y = 1.6;
+console.log(camera)
 // add random functions
 function randInt(min, max) {
   return Math.floor(Math.random() * (max - min + 1) ) + min;
