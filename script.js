@@ -9,7 +9,11 @@ const scene = new THREE.Scene(); //threeJS
 const world = new CANNON.World({ //cannonJS
   gravity: new CANNON.Vec3(0, -9.82, 0), // m/s²
 })
-
+let physicObj=[];
+//CannonDebugger
+const cannonDebugger = new CannonDebugger(scene, world, {
+  // options...
+})
 // The camera
 const camera = new THREE.PerspectiveCamera(
   60,
@@ -117,6 +121,14 @@ cube.mesh = new THREE.Mesh(cube.geometry, cube.material);
 
 scene.add(cube.mesh);
 cube.mesh.position.y = -0.5;
+//cannonJS
+const groundBody = new CANNON.Body({
+  type: CANNON.Body.STATIC,
+  shape: new CANNON.Box(new CANNON.Vec3(15,0.5,15)),
+  position: new CANNON.Vec3(0,-0.5,0)
+})
+world.addBody(groundBody)
+cube.physic=groundBody
 // flying cube
 const texture4 = loadImg('tex/blocks/block1.jpg',1,1);
 const cube2 = {
@@ -129,7 +141,19 @@ color: 0xffffff,map: texture4,} )
 cube2.mesh = new THREE.Mesh(cube2.geometry, cube2.material);
 
 scene.add(cube2.mesh);
-cube2.mesh.position.set(0,1.2,-5)
+cube2.mesh.position.set(0,3,-5)
+console.log(cube2)
+//cannonJS
+let cubeBody = new CANNON.Body({
+  mass: 1, // kg
+  shape: new CANNON.Box(new CANNON.Vec3(0.5,0.5,0.5)),
+position: cube2.mesh.position,
+quaternion: cube2.mesh.quaternion
+})
+world.addBody(cubeBody)
+cube2.physic=cubeBody
+cube2.isPhysic=true
+physicObj.push(cube2)
 //add ambientLight
 const color = 0xFFFFFF;
 const intensity = 0.5;
@@ -145,8 +169,18 @@ console.log(renderer.domElement)
 
 
 let speed=0.15
-// RENDER LOOP
+// RENDER LOOP -----------------------------
 function render() {
+  // do physics first
+  world.fixedStep()
+  cannonDebugger.update()
+  for (let x = 0; x < physicObj.length; x++) {
+if  (physicObj[x].isPhysic) {physicObj[x].mesh.position.copy(physicObj[x].physic.position)
+  physicObj[x].mesh.quaternion.copy(physicObj[x].physic.quaternion) 
+} else { physicObj[x].physic.position.copy(physicObj[x].mesh.position)
+  physicObj[x].physic.quaternion.copy(physicObj[x].mesh.quaternion) 
+}
+}
   // move player 
   if(ft){
 controls.moveForward(speed);
