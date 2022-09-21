@@ -4,7 +4,6 @@ import * as CANNON from 'cannon-es'
 import CannonDebugger from 'cannon-es-debugger'
 import {GLTFLoader} from 'three/examples/jsm/loaders/GLTFLoader';
 import {PointerLockControls} from 'three/examples/jsm/controls/PointerLockControls';
-
 const scene = new THREE.Scene(); //threeJS
 const world = new CANNON.World({ //cannonJS
   gravity: new CANNON.Vec3(0, -9.82, 0), // m/s²
@@ -45,7 +44,7 @@ document.body.appendChild(renderer.domElement);
 const controls = new PointerLockControls(camera, renderer.domElement);
 scene.add(controls.getObject())
 // add eventListners
-var ft, lf, bk, rt, sprint = false
+var ft, lf, bk, rt, debug, sprint = false
 const instructions = renderer.domElement.addEventListener( 'click', function () {
 controls.lock();
 } );
@@ -80,6 +79,9 @@ function keydown(e){
 	case 'ShiftLeft':
 		  sprint = !sprint
 			break;
+    case 'KeyT':
+			debug = !debug;
+			break;
   }
 }
 function keyup(e){
@@ -106,6 +108,9 @@ function keyup(e){
 			break;
   }
 }
+// add object for pickables
+let pickable = new THREE.Object3D();
+  scene.add(pickable);
 // add textures for floor
 let texture = loadImg('tex/floor/color.jpg',8,8);
 let texture2 =  loadImg('tex/floor/normal.jpg',8,8);
@@ -142,7 +147,6 @@ cube2.mesh = new THREE.Mesh(cube2.geometry, cube2.material);
 
 scene.add(cube2.mesh);
 cube2.mesh.position.set(0,3,-5)
-console.log(cube2)
 //cannonJS
 let cubeBody = new CANNON.Body({
   mass: 1, // kg
@@ -154,6 +158,7 @@ world.addBody(cubeBody)
 cube2.physic=cubeBody
 cube2.isPhysic=true
 physicObj.push(cube2)
+pickable.add(cube2.mesh)
 //add ambientLight
 const color = 0xFFFFFF;
 const intensity = 0.5;
@@ -165,14 +170,34 @@ const light2 = new THREE.PointLight(color, intensity);
 light2.position.set(0, 10, 0);
 scene.add(light2);
 console.log(renderer.domElement)
-// Make the camera further from the cube so we can see it better
-
+// mr grabby
+const raycaster = new THREE.Raycaster();
+let lookingAt=[]
+function reset() { console.log(lookingAt)
+    // restore the colors
+    lookingAt.forEach((object) => { 
+      if (object.material  ) {
+      object.material.emissive.setHex(0x000000); 
+      lookingAt.pop()
+      }
+    });
+}   
+function stare(params) {
+  raycaster.setFromCamera( new THREE.Vector2(), camera );  
+	const intersects = raycaster.intersectObjects( pickable.children );
+	if (intersects.length) { console.log(intersects)
+		if (intersects[0].object.material.emissive){
+    lookingAt.push(intersects[0].object)
+    intersects[0].object.material.emissive.setHex(0x3d3d3d);
+    }
+	}
+}
 
 let speed=0.15
 // RENDER LOOP -----------------------------
 function render() { 
-  // do physics first
-  cannonDebugger.update()
+  if(debug){
+ cannonDebugger.update()}
   world.fixedStep()
   
   for (let x = 0; x < physicObj.length; x++) {
@@ -181,7 +206,9 @@ if  (physicObj[x].isPhysic) {physicObj[x].mesh.position.copy(physicObj[x].physic
 } else { physicObj[x].physic.position.copy(physicObj[x].mesh.position)
   physicObj[x].physic.quaternion.copy(physicObj[x].mesh.quaternion) 
 }
-}
+} 
+  reset()
+  stare()
   // move player 
   if(ft){
 controls.moveForward(speed);
