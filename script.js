@@ -8,6 +8,9 @@ const scene = new THREE.Scene(); //threeJS
 const world = new CANNON.World({ //cannonJS
   gravity: new CANNON.Vec3(0, -9.82, 0), // m/s²
 })
+world.solver.iterations = 50;
+world.defaultContactMaterial.contactEquationStiffness = 5e6; world.defaultContactMaterial.contactEquationRelaxation = 3;
+// world.allowSleep = true -- fixy
 let physicObj=[];
 //CannonDebugger
 const cannonDebugger = new CannonDebugger(scene, world, {
@@ -135,9 +138,6 @@ class hold {
       holding=item
       item.isPhysic=false
       } else {  // end holding 
-       console.log(holding,holding.parent)
-         /*holding.parent.physic.position.copy(holding.position)
-  holding.parent.physic.quaternion.copy(holding.quaternion) */
         isHolding=false
         item.isPhysic=true
         holding=false
@@ -187,8 +187,9 @@ const groundBody = new CANNON.Body({
 world.addBody(groundBody)
 cube.mesh.physic=groundBody
 // flying cube
-const texture4 = loadImg('tex/blocks/block1.jpg',1,1);
-const cube2 = {
+for (let fi = -1; fi < 25; fi++) {
+let texture4 = loadImg('tex/blocks/block'+randInt(1,10)+'.jpg',1,1);
+let cube2 = {
   // The geometry: the shape & size of the object
   geometry: new THREE.BoxGeometry(1, 1, 1),
   // The material: the appearance (color, texture) of the object
@@ -196,12 +197,12 @@ const cube2 = {
 color: 0xffffff,map: texture4,} )
 };
 cube2.mesh = new THREE.Mesh(cube2.geometry, cube2.material);
-
 scene.add(cube2.mesh);
-cube2.mesh.position.set(0,3,-5)
+cube2.mesh.position.set(randInt(-10,10),3,randInt(-10,10)) 
+cube2.mesh.rotateY(randInt(1,360))
 //cannonJS
 let cubeBody = new CANNON.Body({
-  mass: 1, // kg
+  mass: 100, // kg
   shape: new CANNON.Box(new CANNON.Vec3(0.5,0.5,0.5)),
 position: cube2.mesh.position,
 quaternion: cube2.mesh.quaternion
@@ -211,6 +212,8 @@ cube2.mesh.physic=cubeBody
 cube2.mesh.isPhysic=true
 physicObj.push(cube2)
 pickable.add(cube2.mesh)
+  
+}
 //add ambientLight
 const color = 0xFFFFFF;
 const intensity = 0.5;
@@ -257,7 +260,8 @@ function render() {
   for (let x = 0; x < physicObj.length; x++) {
 if  (physicObj[x].mesh.isPhysic) {physicObj[x].mesh.position.copy(physicObj[x].mesh.physic.position)
  physicObj[x].mesh.quaternion.copy(physicObj[x].mesh.physic.quaternion) 
-} else { physicObj[x].mesh.physic.position.copy(physicObj[x].mesh.position)
+} else { //physicObj[x].mesh.physic.wakeUp(); --fixy
+        physicObj[x].mesh.physic.position.copy(physicObj[x].mesh.position)
   physicObj[x].mesh.physic.quaternion.copy(physicObj[x].mesh.quaternion) 
 physicObj[x].mesh.physic.velocity=new CANNON.Vec3(0,0,0)
 }
