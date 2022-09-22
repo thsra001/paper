@@ -111,17 +111,18 @@ function keyup(e){
 			break;
   }
 }
+var faar=3
 // raycast and hold if hold
 var isHolding=false // if u ar holding sumtin
 let holding // what ur holding
-let Ray= new THREE.Raycaster();
+
 class hold {
   constructor() {}
-  cast(){
-     Ray.setFromCamera( new THREE.Vector2(), camera );  
-	   const intersects = Ray.intersectObjects( 
-     pickable.children );
-	   if (intersects.length) { 
+  cast(){ 
+     raycaster.setFromCamera( new THREE.Vector2(), camera );  
+	   const intersects = raycaster.intersectObjects( 
+     pickable.children ); 
+	   if (intersects.length ) { 
 		   return intersects[0].object
 	   } 
      else{return false}
@@ -145,10 +146,11 @@ class hold {
   }
   tick(){ // run every frame to move holding item
   if(isHolding){ console.log(holding)
-    let camPos=camera.position //camera.getWorldPosition()
+    let camPos=camera.position
     holding.quaternion.copy(camera.quaternion);
     holding.position.copy(camera.position);
     holding.translateZ(-3)
+   
   }
   }
   
@@ -230,6 +232,7 @@ function reset() {
       }
     });
 }   
+raycaster.far=faar
 function stare() { 
   reset()
   raycaster.setFromCamera( new THREE.Vector2(), camera );  
