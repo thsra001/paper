@@ -54,6 +54,7 @@ controls.lock();
 renderer.domElement.addEventListener('keydown',keydown);
 renderer.domElement.addEventListener('keyup',keyup);
 //Attach listeners to functions
+var camPos=camera.position
 function keydown(e){
   console.log(e.code)
 	switch ( e.code ) {
@@ -87,6 +88,13 @@ function keydown(e){
 			break;
   case 'KeyE':
       holdHold.start()
+			break;
+  case 'KeyC':
+    let holde= new THREE.Object3D();
+      holde.quaternion.copy(camera.quaternion);
+      holde.position.copy(camera.position);
+      holde.translateZ(-3)
+      create(holde.position) //create a cube
 			break;
   }
 }
@@ -145,8 +153,7 @@ class hold {
     }
   }
   tick(){ // run every frame to move holding item
-  if(isHolding){ console.log(holding)
-    let camPos=camera.position
+  if(isHolding){ 
     holding.quaternion.copy(camera.quaternion);
     holding.position.copy(camera.position);
     holding.translateZ(-3)
@@ -159,7 +166,25 @@ class hold {
 }
 const holdHold= new hold()
 
+// objectDestroyer
+function removeObject3D(object3D) {
+    if (!(object3D instanceof THREE.Object3D)) return false;
 
+    // for better memory management and performance
+    if (object3D.geometry) object3D.geometry.dispose();
+    if (object3D.physic) world.removeBody(object3D.physic);
+    if (object3D.material) {
+        if (object3D.material instanceof Array) {
+            // for better memory management and performance
+            object3D.material.forEach(material => material.dispose());
+        } else {
+            // for better memory management and performance
+            object3D.material.dispose();
+        }
+    }
+    object3D.removeFromParent(); // the parent might be the scene or another Object3D, but it is sure to be removed this way
+    return true;
+}
 // add object for pickables
 let pickable = new THREE.Object3D();
   scene.add(pickable);
@@ -186,8 +211,11 @@ const groundBody = new CANNON.Body({
 })
 world.addBody(groundBody)
 cube.mesh.physic=groundBody
-// flying cube
-for (let fi = -1; fi < 25; fi++) {
+
+// physics cube
+for (let fi = -1; fi < 25; fi++) {create(new THREE.Vector3(randInt(-15,15), 3, randInt(-15,15)))}
+create(new THREE.Vector3(0,3,0))
+function create(pos){
 let texture4 = loadImg('tex/blocks/block'+randInt(1,10)+'.jpg',1,1);
 let cube2 = {
   // The geometry: the shape & size of the object
@@ -198,7 +226,7 @@ color: 0xffffff,map: texture4,} )
 };
 cube2.mesh = new THREE.Mesh(cube2.geometry, cube2.material);
 scene.add(cube2.mesh);
-cube2.mesh.position.set(randInt(-10,10),3,randInt(-10,10)) 
+cube2.mesh.position.copy(pos)
 cube2.mesh.rotateY(randInt(1,360))
 //cannonJS
 let cubeBody = new CANNON.Body({
@@ -211,8 +239,8 @@ world.addBody(cubeBody)
 cube2.mesh.physic=cubeBody
 cube2.mesh.isPhysic=true
 physicObj.push(cube2)
-pickable.add(cube2.mesh)
-  
+pickable.add(cube2.mesh); 
+  return cube2
 }
 //add ambientLight
 const color = 0xFFFFFF;
@@ -260,6 +288,10 @@ function render() {
   for (let x = 0; x < physicObj.length; x++) {
 if  (physicObj[x].mesh.isPhysic) {physicObj[x].mesh.position.copy(physicObj[x].mesh.physic.position)
  physicObj[x].mesh.quaternion.copy(physicObj[x].mesh.physic.quaternion) 
+if(physicObj[x].mesh.physic.position.y<-10 ){ // remove item
+  removeObject3D(physicObj[x].mesh)
+  removeObject3D(physicObj[x])
+}     console.log(physicObj[x],scene)
 } else { //physicObj[x].mesh.physic.wakeUp(); --fixy
         physicObj[x].mesh.physic.position.copy(physicObj[x].mesh.position)
   physicObj[x].mesh.physic.quaternion.copy(physicObj[x].mesh.quaternion) 
