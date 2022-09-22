@@ -150,7 +150,9 @@ class hold {
     holding.quaternion.copy(camera.quaternion);
     holding.position.copy(camera.position);
     holding.translateZ(-3)
-   
+    let pos=holding.position
+    let cam=camera.position
+    holding.lookAt(cam.x,pos.y,cam.z)
   }
   }
   
