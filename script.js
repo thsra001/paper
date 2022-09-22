@@ -259,6 +259,7 @@ if  (physicObj[x].mesh.isPhysic) {physicObj[x].mesh.position.copy(physicObj[x].m
  physicObj[x].mesh.quaternion.copy(physicObj[x].mesh.physic.quaternion) 
 } else { physicObj[x].mesh.physic.position.copy(physicObj[x].mesh.position)
   physicObj[x].mesh.physic.quaternion.copy(physicObj[x].mesh.quaternion) 
+physicObj[x].mesh.physic.velocity=new CANNON.Vec3(0,0,0)
 }
 } 
   // move player 
