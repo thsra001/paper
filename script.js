@@ -44,7 +44,7 @@ document.body.appendChild(renderer.domElement);
 const controls = new PointerLockControls(camera, renderer.domElement);
 scene.add(controls.getObject())
 // add eventListners
-var ft, lf, bk, rt, debug, sprint = false
+var ft, lf, bk, rt, debug ,sprint = false
 const instructions = renderer.domElement.addEventListener( 'click', function () {
 controls.lock();
 } );
@@ -79,8 +79,11 @@ function keydown(e){
 	case 'ShiftLeft':
 		  sprint = !sprint
 			break;
-    case 'KeyT':
-			debug = !debug;
+  case 'KeyT':
+			debug = true;
+			break;
+  case 'KeyE':
+      holdHold.start()
 			break;
   }
 }
@@ -108,6 +111,51 @@ function keyup(e){
 			break;
   }
 }
+// raycast and hold if hold
+var isHolding=false // if u ar holding sumtin
+let holding // what ur holding
+let Ray= new THREE.Raycaster();
+class hold {
+  constructor() {}
+  cast(){
+     Ray.setFromCamera( new THREE.Vector2(), camera );  
+	   const intersects = Ray.intersectObjects( 
+     pickable.children );
+	   if (intersects.length) { 
+		   return intersects[0].object
+	   } 
+     else{return false}
+  }
+  start(){
+    let item = this.cast();
+    if(item){
+      if(!isHolding){// start holding
+      isHolding=true
+      holding=item
+      item.isPhysic=false
+      } else {  // end holding 
+       console.log(holding,holding.parent)
+         /*holding.parent.physic.position.copy(holding.position)
+  holding.parent.physic.quaternion.copy(holding.quaternion) */
+        isHolding=false
+        item.isPhysic=true
+        holding=false
+      }
+    }
+  }
+  tick(){ // run every frame to move holding item
+  if(isHolding){ console.log(holding)
+    let camPos=camera.position //camera.getWorldPosition()
+    holding.quaternion.copy(camera.quaternion);
+    holding.position.copy(camera.position);
+    holding.translateZ(-3)
+  }
+  }
+  
+}
+const holdHold= new hold()
+
+
 // add object for pickables
 let pickable = new THREE.Object3D();
   scene.add(pickable);
@@ -133,7 +181,7 @@ const groundBody = new CANNON.Body({
   position: new CANNON.Vec3(0,-0.5,0)
 })
 world.addBody(groundBody)
-cube.physic=groundBody
+cube.mesh.physic=groundBody
 // flying cube
 const texture4 = loadImg('tex/blocks/block1.jpg',1,1);
 const cube2 = {
@@ -155,8 +203,8 @@ position: cube2.mesh.position,
 quaternion: cube2.mesh.quaternion
 })
 world.addBody(cubeBody)
-cube2.physic=cubeBody
-cube2.isPhysic=true
+cube2.mesh.physic=cubeBody
+cube2.mesh.isPhysic=true
 physicObj.push(cube2)
 pickable.add(cube2.mesh)
 //add ambientLight
@@ -186,7 +234,7 @@ function stare() {
   reset()
   raycaster.setFromCamera( new THREE.Vector2(), camera );  
 	const intersects = raycaster.intersectObjects( pickable.children );
-	if (intersects.length) { console.log(intersects)
+	if (intersects.length) { 
 		if (intersects[0].object.material.emissive){
     lookingAt.push(intersects[0].object)
     intersects[0].object.material.emissive.setHex(0x3d3d3d);
@@ -202,10 +250,10 @@ function render() {
   world.fixedStep()
   
   for (let x = 0; x < physicObj.length; x++) {
-if  (physicObj[x].isPhysic) {physicObj[x].mesh.position.copy(physicObj[x].physic.position)
- physicObj[x].mesh.quaternion.copy(physicObj[x].physic.quaternion) 
-} else { physicObj[x].physic.position.copy(physicObj[x].mesh.position)
-  physicObj[x].physic.quaternion.copy(physicObj[x].mesh.quaternion) 
+if  (physicObj[x].mesh.isPhysic) {physicObj[x].mesh.position.copy(physicObj[x].mesh.physic.position)
+ physicObj[x].mesh.quaternion.copy(physicObj[x].mesh.physic.quaternion) 
+} else { physicObj[x].mesh.physic.position.copy(physicObj[x].mesh.position)
+  physicObj[x].mesh.physic.quaternion.copy(physicObj[x].mesh.quaternion) 
 }
 } 
   // move player 
@@ -226,7 +274,8 @@ if(sprint){
 } else{ 
   speed=0.1
 }
-
+// do a tick on holder holder
+holdHold.tick()
   // Render the scene and the camera
   renderer.render(scene, camera);
 
