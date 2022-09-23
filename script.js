@@ -24,7 +24,7 @@ const camera = new THREE.PerspectiveCamera(
   10000
 );
 camera.position.y = 1.6;
-console.log(camera)
+
 // add random functions
 function randInt(min, max) {
   return Math.floor(Math.random() * (max - min + 1) ) + min;
@@ -252,7 +252,7 @@ scene.add(light);
 const light2 = new THREE.PointLight(color, intensity);
 light2.position.set(0, 10, 0);
 scene.add(light2);
-console.log(renderer.domElement)
+
 // mr grabby
 const raycaster = new THREE.Raycaster();
 let lookingAt=[]
@@ -291,7 +291,7 @@ if  (physicObj[x].mesh.isPhysic) {physicObj[x].mesh.position.copy(physicObj[x].m
 if(physicObj[x].mesh.physic.position.y<-10 ){ // remove item
   removeObject3D(physicObj[x].mesh)
   removeObject3D(physicObj[x])
-}     console.log(physicObj[x],scene)
+}     
 } else { //physicObj[x].mesh.physic.wakeUp(); --fixy
         physicObj[x].mesh.physic.position.copy(physicObj[x].mesh.position)
   physicObj[x].mesh.physic.quaternion.copy(physicObj[x].mesh.quaternion) 
