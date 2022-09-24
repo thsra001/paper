@@ -4,6 +4,8 @@ import * as CANNON from 'cannon-es'
 import CannonDebugger from 'cannon-es-debugger'
 import {GLTFLoader} from 'three/examples/jsm/loaders/GLTFLoader';
 import {PointerLockControls} from 'three/examples/jsm/controls/PointerLockControls';
+import{FontLoader} from "three/examples/jsm/loaders/FontLoader"
+import {TextGeometry} from "three/examples/jsm/geometries/TextGeometry"
 const scene = new THREE.Scene(); //threeJS
 const world = new CANNON.World({ //cannonJS
   gravity: new CANNON.Vec3(0, -9.82, 0), // m/s²
@@ -241,7 +243,29 @@ cube2.mesh.isPhysic=true
 physicObj.push(cube2)
 pickable.add(cube2.mesh); 
   return cube2
-}
+} // font text load
+const loader = new FontLoader();
+
+loader.load( './tex/oxygen.json', function ( font ) {
+
+	const geometry = new TextGeometry( 'cube stacking simulator 4', {
+		font: font,
+		size: 80,
+		height: 5,
+		curveSegments: 12,
+		bevelEnabled: true,
+		bevelThickness: 10,
+		bevelSize: 8,
+		bevelOffset: 0,
+		bevelSegments: 5
+	});
+let mat = new THREE.MeshStandardMaterial({color: 0xffffff});
+  let textMesh1 = new THREE.Mesh( geometry, mat );
+      textMesh1.scale.set(0.01,0.01,0.01)
+      textMesh1.position.set(-6,3,-15)
+      console.log(textMesh1);scene.add(textMesh1)                             
+  
+} ); 
 //add ambientLight
 const color = 0xFFFFFF;
 const intensity = 0.5;
