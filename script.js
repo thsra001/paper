@@ -301,7 +301,6 @@ function stare() {
     }
 	}
 }
-window.addEventListener( 'pointermove', stare );
 let speed=0.15
 // RENDER LOOP -----------------------------
 function render() { 
@@ -319,9 +318,11 @@ if(physicObj[x].mesh.physic.position.y<-10 ){ // remove item
 } else { //physicObj[x].mesh.physic.wakeUp(); --fixy
         physicObj[x].mesh.physic.position.copy(physicObj[x].mesh.position)
   physicObj[x].mesh.physic.quaternion.copy(physicObj[x].mesh.quaternion) 
-physicObj[x].mesh.physic.velocity=new CANNON.Vec3(0,0,0)
+physicObj[x].mesh.physic.velocity.setZero()
+physicObj[x].mesh.physic.angularVelocity.setZero();
 }
-} 
+} //stare highlight on pickable
+stare()
   // move player 
   if(ft){
 controls.moveForward(speed);
