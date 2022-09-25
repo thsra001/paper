@@ -128,7 +128,7 @@ var faar=3
 // raycast and hold if hold
 var isHolding=false // if u ar holding sumtin
 let holding // what ur holding
-
+let target=new THREE.Object3D()
 class hold {
   constructor() {}
   cast(){ 
@@ -146,22 +146,29 @@ class hold {
       if(!isHolding){// start holding
       isHolding=true
       holding=item
-      item.isPhysic=false
       } else {  // end holding 
+        holding.physic.velocity.setZero()
+        holding.physic.angularVelocity.setZero();
         isHolding=false
-        item.isPhysic=true
         holding=false
       }
     }
   }
   tick(){ // run every frame to move holding item
   if(isHolding){ 
-    holding.quaternion.copy(camera.quaternion);
-    holding.position.copy(camera.position);
-    holding.translateZ(-3)
-    let pos=holding.position
-    let cam=camera.position
-    holding.lookAt(cam.x,pos.y,cam.z)
+    let tarPos=target.position;
+    let holdPos=holding.physic;
+    let cam=camera.position;
+    target.quaternion.copy(camera.quaternion);
+    target.position.copy(camera.position);
+    target.translateZ(-3);
+    target.lookAt(cam.x,tarPos.y,cam.z)
+    holdPos.quaternion.copy(target.quaternion);
+  
+    holdPos.velocity.x = (tarPos.x-holdPos.position.x)*6;
+    holdPos.velocity.z = (tarPos.z-holdPos.position.z)*6;
+    holdPos.velocity.y = (tarPos.y-holdPos.position.y)*6;
+    console.log(holdPos.velocity.y)
   }
   }
   
@@ -306,6 +313,8 @@ let speed=0.15
 function render() { 
   if(debug){
  cannonDebugger.update()}
+  // do a tick on holder holder
+holdHold.tick()
   world.fixedStep()
   
   for (let x = 0; x < physicObj.length; x++) {
@@ -341,8 +350,7 @@ if(sprint){
 } else{ 
   speed=0.1
 }
-// do a tick on holder holder
-holdHold.tick()
+
   // Render the scene and the camera
   renderer.render(scene, camera);
 
